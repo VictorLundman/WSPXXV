@@ -1,0 +1,16 @@
+h1 = @thread["title"]
+
+p = @thread["content"]
+
+span
+    a href="/users/#{@thread["owner_id"]}" = @thread["owner_id"]
+
+- @replies.each do |reply|
+    article 
+        hr
+        a href="/users/#{reply["owner_id"]}"  = reply["owner_id"]
+        p = reply["content"]
+
+form action="/threads/#{@thread["id"]}" method="POST"
+    textarea# name="content" placeholder="Svar"
+    button Svara

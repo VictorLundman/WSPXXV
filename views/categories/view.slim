@@ -1,0 +1,5 @@
+h1 = @category["name"]
+ol 
+    - @threads.each do |thread|
+        li
+            a href="/threads/#{thread["id"]}" = thread["title"]
