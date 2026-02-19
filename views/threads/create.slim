@@ -1,0 +1,6 @@
+h1 Skapa en tråd i kategorin #{@category["title"]}
+
+form action="/categories/#{@category["id"]}" method="POST"
+    input type="text" name="title" placeholder="Titel" /
+    textarea# name="content" placeholder="Beskrivning"
+    button Svara

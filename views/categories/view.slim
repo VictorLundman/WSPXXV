@@ -1,4 +1,7 @@
 h1 = @category["name"]
+
+a href="/categories/#{@category["id"]}/new" Ny tråd
+
 ol 
     - @threads.each do |thread|
         li

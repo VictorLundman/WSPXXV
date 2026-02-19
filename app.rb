@@ -3,6 +3,7 @@ require 'slim'
 require 'sqlite3'
 require 'sinatra/reloader'
 require 'bcrypt'
+require_relative 'models'
 
 before do
   user_id = session[:user_id]
@@ -11,65 +12,75 @@ before do
       return
   end
 
-  db = connectToDb()
-  user = db.execute("SELECT id, username FROM users WHERE id=?", [user_id])
-  if user.empty?
-      @user = nil
-      return
-  end
-
-  @user = user[0]
-end
-
-def connectToDb()
-  db = SQLite3::Database.new("db/databas.db")
-  db.results_as_hash = true
-
-  return db
+  @user = getUserById(user_id)
 end
 
 get "/" do
-  db = connectToDb()
-  @categories = db.execute("SELECT id, name FROM category")
+  @categories = getCategories()
 
   slim(:index)
 end
 
 get "/categories/:id" do
   id = params[:id].to_i
-  db = connectToDb()
 
-  categories = db.execute("SELECT * FROM category WHERE id = ?", [id])
-  if categories.empty?
+  @category = getCategoryById(id)
+  if @category == nil
     error(404)
   end
 
-  @category = categories.first
-  @threads = db.execute("SELECT * FROM thread WHERE category_id = ? ORDER BY created DESC", [id])
+  @threads = getCategoryThreads(id)
 
   slim(:"categories/view")
 end
 
-get "/threads/:id" do
+get "/categories/:id/new" do
   id = params[:id].to_i
-  db = connectToDb()
 
-  threads = db.execute("SELECT * FROM thread WHERE id = ?", [id])
-  if threads.empty?
+  @category = getCategoryById(id)
+  if @category == nil
     error(404)
   end
 
-  @thread = threads.first
-  @replies = db.execute("SELECT * FROM reply where thread_id = ? ORDER BY created, id ASC", [id])
+  slim(:"threads/create")
+end
+
+post "/categories/:id" do
+  id = params[:id].to_i
+
+  @category = getCategoryById(id)
+  if @category == nil
+    error(404)
+  end
+
+  title = params[:title]
+  content = params[:content]
+  if title.empty? or content.empty?
+    error(400)
+  end
+
+  threadId = createThread(id, title, content, 1)
+  
+  redirect("/threads/#{threadId}")
+end
+
+get "/threads/:id" do
+  id = params[:id].to_i
+  
+  @thread = getThreadById(id)
+  if @thread == nil
+    error(404)
+  end
+
+  @replies = getThreadReplies(id)
 
   slim(:"threads/view")
 end
 
 post "/threads/:id" do
   id = params[:id].to_i
-  db = connectToDb()
 
-  threads = db.execute("SELECT * FROM thread WHERE id = ?", [id])
+  threads = getThreadById(id)
   if threads.empty?
     error(404)
   end
@@ -79,7 +90,18 @@ post "/threads/:id" do
     error(400)
   end
 
-  db.execute("INSERT INTO reply (thread_id, content, owner_id) VALUES (?, ?, ?)", [id, content, 1])
+  createReply(id, content, 1)
 
   redirect("/threads/#{id}")
+end
+
+get "/users/:id" do 
+  id = params[:id].to_i
+
+  @user = getUserById(id)
+  if @user == nil
+    error(404)
+  end
+
+  slim(:"users/view")
 end

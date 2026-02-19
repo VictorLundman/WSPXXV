@@ -1,0 +1,4 @@
+h1 #{@user["id"]}
+
+form action="/users/#{@user["id"]}/follow"
+    button type="submit" #{@isFollowingUser ? "Avfölj" : "Följ"}
