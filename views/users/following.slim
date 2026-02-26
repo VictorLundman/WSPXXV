@@ -1,0 +1,6 @@
+h1 #{@profile_user["id"]} följer dessa
+
+ul
+    - @following.each do |following| 
+        li
+            a href="/users/#{following["id"]}" #{following["id"]}

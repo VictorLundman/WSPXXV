@@ -65,3 +65,57 @@ def getUserById(id)
 
   return users.first
 end
+
+def getUserFollowersForUser(id) 
+  db = connectToDb()
+  followers = db.execute("SELECT * FROM user_follow_user INNER JOIN user ON user_follow_user.follower_id = user.id WHERE user_follow_user.following_id = ?", [id])
+
+  return followers
+end
+
+def getUserFollowingForUser(id) 
+  db = connectToDb()
+  followers = db.execute("SELECT * FROM user_follow_user INNER JOIN user ON user_follow_user.following_id = user.id WHERE user_follow_user.follower_id = ?", [id])
+  
+  return followers
+end
+
+def userFollowsUser(follower, following)
+  db = connectToDb()
+  connection = db.execute("SELECT * from user_follow_user WHERE follower_id = ? AND following_id = ?", [follower, following])
+
+  return !connection.empty?
+end
+
+def followUser(follower, following) 
+  db = connectToDb()
+  db.execute("INSERT INTO user_follow_user (follower_id, following_id) VALUES (?, ?)", [follower, following])
+end
+
+def unfollowUser(follower, following) 
+  db = connectToDb()
+  db.execute("DELETE FROM user_follow_user where follower_id = ? AND following_id = ?", [follower, following])
+end
+
+def getUserThreads(user_id, limit, page)  
+  db = connectToDb()  
+  threads = db.execute("SELECT * FROM thread WHERE owner_id = ? ORDER BY created DESC LIMIT ? OFFSET ?", [user_id, limit, page * limit])
+
+  return threads
+end
+
+def countUserReplies(user_id) 
+  db = connectToDb()
+  db.results_as_hash = false
+
+  res = db.execute("SELECT COUNT(*) FROM reply WHERE owner_id = ?", [user_id])
+
+  return res.first[0]
+end
+
+def getUserByUsername(username)
+  db = connectToDb()
+  users = db.execute("SELECT * FROM user WHERE username = ?", [username])
+
+  return users.first
+end

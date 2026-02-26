@@ -1,0 +1,18 @@
+h1 Trådar skapade av #{@profile_user["id"]}
+
+ol
+    - @threads.each do |thread|
+        li 
+            a href="/threads/#{thread["id"]}" #{thread["title"]}
+
+form
+    input type="hidden" name="page" value="#{@page - 1}"
+    button type="submit" disabled=@is_first_page Förra
+
+form
+    input type="hidden" name="page" value="#{@page + 1}"
+    button type="submit" disabled=@is_last_page Nästa
+
+form
+    input type="number" name="page" value="#{@page}"
+    button type="submit" Gå

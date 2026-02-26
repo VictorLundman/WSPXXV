@@ -1,4 +1,20 @@
-h1 #{@user["id"]}
+h1 #{@profile_user["id"]}
 
-form action="/users/#{@user["id"]}/follow"
-    button type="submit" #{@isFollowingUser ? "Avfölj" : "Följ"}
+a href="/users/#{@profile_user["id"]}/followers" #{@followers.length()} följare
+a href="/users/#{@profile_user["id"]}/following" #{@following.length()} följer
+
+- if @user and @profile_user["id"] != @user["id"]
+    form action="/users/#{@profile_user["id"]}/follow" method="POST"
+        button type="submit" #{@is_following_user ? "Avfölj" : "Följ"}
+- elsif @user == nil 
+        a href="/login" Logga in för att följa
+
+p #{@replies_count} svar
+
+h2 Skapade trådar 
+a href="/users/#{@profile_user["id"]}/threads" Alla
+
+ol
+    - @threads.each do |thread|
+        li 
+            a href="/threads/#{thread["id"]}" #{thread["title"]}

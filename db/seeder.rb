@@ -1,4 +1,5 @@
 require 'sqlite3'
+require 'BCrypt'
 
 db = SQLite3::Database.new("databas.db")
 
@@ -18,11 +19,14 @@ def drop_tables(db)
   db.execute('DROP TABLE IF EXISTS category')
   db.execute('DROP TABLE IF EXISTS thread')
   db.execute('DROP TABLE IF EXISTS reply')
+  db.execute('DROP TABLE IF EXISTS user_follow_user')
 end
 
 def create_tables(db)
   db.execute('CREATE TABLE user (
-              id INTEGER PRIMARY KEY AUTOINCREMENT)')
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              username TEXT NOT NULL COLLATE NOCASE,
+              pass_dig TEXT NOT NULL)')
   db.execute('CREATE TABLE category (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL)')
@@ -43,10 +47,18 @@ def create_tables(db)
               created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
               FOREIGN KEY(thread_id) REFERENCES thread(id) ON DELETE CASCADE,
               FOREIGN KEY(owner_id) REFERENCES user(id) ON DELETE CASCADE)')
+  db.execute('CREATE TABLE user_follow_user (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              follower_id INTEGER NOT NULL,
+              following_id INTEGER NOT NULL,
+              created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY(follower_id) REFERENCES user(id) ON DELETE CASCADE,
+              FOREIGN KEY(following_id) REFERENCES user(id) ON DELETE CASCADE)')
 end
 
 def populate_tables(db)
-  db.execute("INSERT INTO user DEFAULT VALUES")
+  db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?)", ["skibidi", BCrypt::Password.create("toilet")])
+  db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?)", ["fortnite", BCrypt::Password.create("roblox")])
 
   category_id_1 = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", ["Roblox"])[0][0]
   category_id_2 = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", ["Fortnite"])[0][0]
