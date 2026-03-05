@@ -119,3 +119,17 @@ def getUserByUsername(username)
 
   return users.first
 end
+
+def createUser(username, password_digest)
+  db = connectToDb()
+  users = db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?) RETURNING id", [username, password_digest])
+
+  return users.first["id"]
+end
+
+def createCategory(name)
+  db = connectToDb()
+  categories = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", [name])
+
+  return categories.first["id"]
+end

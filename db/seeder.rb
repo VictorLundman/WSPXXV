@@ -26,7 +26,8 @@ def create_tables(db)
   db.execute('CREATE TABLE user (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               username TEXT NOT NULL COLLATE NOCASE,
-              pass_dig TEXT NOT NULL)')
+              pass_dig TEXT NOT NULL,
+              role INTEGER NOT NULL DEFAULT 0)')
   db.execute('CREATE TABLE category (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL)')
@@ -57,8 +58,8 @@ def create_tables(db)
 end
 
 def populate_tables(db)
-  db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?)", ["skibidi", BCrypt::Password.create("toilet")])
-  db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?)", ["fortnite", BCrypt::Password.create("roblox")])
+  db.execute("INSERT INTO user (username, pass_dig, role) VALUES (?, ?, ?)", ["skibidi", BCrypt::Password.create("toilet123"), 3])
+  db.execute("INSERT INTO user (username, pass_dig) VALUES (?, ?)", ["fortnite", BCrypt::Password.create("roblox123")])
 
   category_id_1 = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", ["Roblox"])[0][0]
   category_id_2 = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", ["Fortnite"])[0][0]
