@@ -2,6 +2,10 @@ h1 = @thread["title"]
 
 p = @thread["content"]
 
+- if @user and (@thread["owner_id"] == @user["id"] or @user["role"] > 0)
+    form action="/threads/#{@thread["id"]}/delete" method="POST"
+        button type="submit" Radera
+
 span
     a href="/users/#{@thread["owner_id"]}" = @thread["owner_id"]
 
@@ -10,6 +14,9 @@ span
         hr
         a href="/users/#{reply["owner_id"]}"  = reply["owner_id"]
         p = reply["content"]
+        - if @user and (reply["owner_id"] == @user["id"] or @user["role"] > 0)
+            form action="/threads/#{@thread["id"]}/replies/#{reply["id"]}/delete" method="POST"
+                button type="submit" Radera
 
 form action="/threads/#{@thread["id"]}" method="POST"
     textarea# name="content" placeholder="Svar"

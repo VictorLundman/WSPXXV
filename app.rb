@@ -11,13 +11,17 @@ enable :sessions
 
 before do
   user_id = session[:user_id]
-  p user_id
-  if user_id == nil
-      @user = nil
-      return
+  @user = user_id == nil ? nil : getUserById(user_id)
+
+  if @user and @user["is_banned"] == 1 and request.path_info != "/logout" and request.path_info != "/banned"
+    p "banned"
+    p @user
+    return redirect("/banned")
   end
 
-  @user = getUserById(user_id)
+  if request.path_info.start_with?("/admin") and (@user == nil or @user["role"] < 1)
+    return error(401)
+  end
 end
 
 get "/" do
@@ -306,4 +310,82 @@ post "/auth/signup" do
   session[:user_id] = new_user_id
 
   redirect "/"
+end
+
+post "/admin/users/:id/delete" do
+  id = params[:id]
+  @profile_user = getUserById(id)
+  if @profile_user == nil
+    error(404)
+  end
+
+  deleteUser(id)
+
+  redirect("/")
+end
+
+post "/admin/users/:id/ban" do
+  id = params[:id]
+  @profile_user = getUserById(id)
+  if @profile_user == nil
+    error(404)
+  end
+
+  status = params[:status].to_i
+  if status != 0 and status != 1
+    error(400)
+  end
+
+  banUser(id, status)
+
+  redirect("/users/#{id}")
+end
+
+get "/banned" do
+  p @user
+  if @user and @user["is_banned"] == 1
+    return slim(:banned)
+  end
+
+  p @user
+
+  redirect("/")
+end
+
+post "/threads/:thread_id/delete" do
+  thread_id = params[:thread_id]
+  thread = getThreadById(thread_id)
+  if thread == nil
+    error(404)
+  end
+
+  if @user == nil or (@user["id"] != thread["owner_id"] and @user["role"] == 0)
+    error(401)
+  end
+
+  deleteThread(thread_id)
+
+  redirect("/categories/#{thread["category_id"]}")
+end
+
+post "/threads/:thread_id/replies/:reply_id/delete" do
+  thread_id = params[:thread_id]
+  thread = getThreadById(thread_id)
+  if thread == nil
+    error(404)
+  end
+
+  reply_id = params[:reply_id]
+  reply = getThreadReplyById(reply_id)
+  if reply == nil
+    error(404)
+  end
+
+  if @user == nil or (@user["id"] != reply["owner_id"] and @user["role"] == 0)
+    error(401)
+  end
+
+  deleteReply(reply_id)
+
+  redirect("/threads/#{thread["id"]}")
 end

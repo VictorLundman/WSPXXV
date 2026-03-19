@@ -2,7 +2,7 @@ require 'sqlite3'
 require 'BCrypt'
 
 db = SQLite3::Database.new("databas.db")
-
+db.execute("PRAGMA foreign_keys = ON;")
 
 def seed!(db)
   puts "🧹 Dropping old tables..."
@@ -15,11 +15,11 @@ def seed!(db)
 end
 
 def drop_tables(db)
-  db.execute('DROP TABLE IF EXISTS user')
-  db.execute('DROP TABLE IF EXISTS category')
-  db.execute('DROP TABLE IF EXISTS thread')
-  db.execute('DROP TABLE IF EXISTS reply')
   db.execute('DROP TABLE IF EXISTS user_follow_user')
+  db.execute('DROP TABLE IF EXISTS reply')
+  db.execute('DROP TABLE IF EXISTS thread')
+  db.execute('DROP TABLE IF EXISTS category')
+  db.execute('DROP TABLE IF EXISTS user')
 end
 
 def create_tables(db)
@@ -27,7 +27,8 @@ def create_tables(db)
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               username TEXT NOT NULL COLLATE NOCASE,
               pass_dig TEXT NOT NULL,
-              role INTEGER NOT NULL DEFAULT 0)')
+              role INTEGER NOT NULL DEFAULT 0,
+              is_banned INTEGER NOT NULL DEFAULT FALSE)')
   db.execute('CREATE TABLE category (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL)')
@@ -49,10 +50,10 @@ def create_tables(db)
               FOREIGN KEY(thread_id) REFERENCES thread(id) ON DELETE CASCADE,
               FOREIGN KEY(owner_id) REFERENCES user(id) ON DELETE CASCADE)')
   db.execute('CREATE TABLE user_follow_user (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
               follower_id INTEGER NOT NULL,
               following_id INTEGER NOT NULL,
               created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              PRIMARY KEY (follower_id, following_id)
               FOREIGN KEY(follower_id) REFERENCES user(id) ON DELETE CASCADE,
               FOREIGN KEY(following_id) REFERENCES user(id) ON DELETE CASCADE)')
 end

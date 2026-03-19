@@ -1,5 +1,6 @@
 def connectToDb()
   db = SQLite3::Database.new("db/databas.db")
+  db.execute("PRAGMA foreign_keys = ON;")
   db.results_as_hash = true
 
   return db
@@ -132,4 +133,31 @@ def createCategory(name)
   categories = db.execute("INSERT INTO category (name) VALUES (?) RETURNING id", [name])
 
   return categories.first["id"]
+end
+
+def deleteUser(id)
+  db = connectToDb()
+  db.execute("DELETE FROM user WHERE id = ?", [id])
+end
+
+def banUser(id, status) 
+  db = connectToDb()
+  db.execute("UPDATE user SET is_banned = ? WHERE id = ?", [status, id])
+end
+
+def deleteThread(id)
+  db = connectToDb()
+  db.execute("DELETE FROM thread WHERE id = ?", [id])
+end
+
+def getThreadReplyById(id)
+  db = connectToDb()
+  replies = db.execute("SELECT * FROM reply WHERE id = ?", [id])
+
+  return replies.first
+end
+
+def deleteReply(id)
+  db = connectToDb()
+  db.execute("DELETE FROM reply WHERE id = ?", [id])
 end

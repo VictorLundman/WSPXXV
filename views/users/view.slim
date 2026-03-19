@@ -1,4 +1,13 @@
-h1 #{@profile_user["username"]}
+h1 #{@profile_user["username"]} 
+
+span #{@profile_user["role"] == 0 ? "Medlem" : "Admin"} #{@profile_user["is_banned"] == 1 ? "(Avstängd)" : ""}
+
+- if @user and @user["role"] > @profile_user["role"]
+    form action="/admin/users/#{@profile_user["id"]}/ban" method="POST"
+        input name="status" hidden=1 value="#{@profile_user["is_banned"] == 1 ? "0" : "1"}"
+        button type="submit" #{@profile_user["is_banned"] == 1 ? "Aktivera konto" : "Stäng av konto"}
+    form action="/admin/users/#{@profile_user["id"]}/delete" method="POST"
+        button type="submit" Radera konto
 
 a href="/users/#{@profile_user["id"]}/followers" #{@followers.length()} följare
 a href="/users/#{@profile_user["id"]}/following" #{@following.length()} följer
@@ -7,7 +16,7 @@ a href="/users/#{@profile_user["id"]}/following" #{@following.length()} följer
     form action="/users/#{@profile_user["id"]}/follow" method="POST"
         button type="submit" #{@is_following_user ? "Avfölj" : "Följ"}
 - elsif @user == nil 
-        a href="/login" Logga in för att följa
+        a href="/auth/login" Logga in för att följa
 
 p #{@replies_count} svar
 
