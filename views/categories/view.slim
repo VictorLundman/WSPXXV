@@ -1,5 +1,8 @@
 h1 = @category["name"]
 
+- if @user and @user["role"] >= 2
+    a href="/categories/#{@category["id"]}/update" Uppdatera kategori
+
 a href="/categories/#{@category["id"]}/new" Ny tråd
 
 ol 

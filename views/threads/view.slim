@@ -7,17 +7,17 @@ p = @thread["content"]
         button type="submit" Radera
 
 span
-    a href="/users/#{@thread["owner_id"]}" = @thread["owner_id"]
+    a href="/users/#{@thread["owner_id"]}" = @thread["username"]
 
 - @replies.each do |reply|
     article 
         hr
-        a href="/users/#{reply["owner_id"]}"  = reply["owner_id"]
+        a href="/users/#{reply["owner_id"]}"  = reply["username"]
         p = reply["content"]
         - if @user and (reply["owner_id"] == @user["id"] or @user["role"] > 0)
             form action="/threads/#{@thread["id"]}/replies/#{reply["id"]}/delete" method="POST"
                 button type="submit" Radera
 
 form action="/threads/#{@thread["id"]}" method="POST"
-    textarea# name="content" placeholder="Svar"
-    button Svara
+    textarea# name="content" placeholder="Svar" disabled=!@user
+    button disabled=!@user Svara

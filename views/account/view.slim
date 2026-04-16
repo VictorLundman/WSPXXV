@@ -1,0 +1,11 @@
+form method="POST"
+    input name="username" value=@user["username"]
+    button type="submit" Spara
+
+form action="/account/updatePassword" method="POST"
+    input name="existing_pass" type="password" placeholder="Nuvarande lösenord"
+    input name="new_pass" type="password" placeholder="Nytt lösenord"
+    input name="new_pass_confirm" type="password" placeholder="Upprepa nya lösenordet"
+    button type="submit" Uppdatera
+
+    

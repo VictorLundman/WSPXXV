@@ -1,1 +1,13 @@
+header 
+    a href="/" Hem
+    a href="/" Kategorier
+
+    - if @user
+        a href="/account" Konto
+        form action="/logout" method="POST"
+            button value="submit" Logga ut
+    - else
+        a href="/auth/login" Logga in
+        a href="/auth/signup" Skapa konto
+
 ==yield

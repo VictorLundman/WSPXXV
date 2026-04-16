@@ -1,0 +1,5 @@
+h1 Uppdatera kategorin 
+
+form action="/categories/#{@category["id"]}/update" method="POST"
+    input name="title" value=@category["name"] placeholder="Titel"
+    button type="submit" Spara

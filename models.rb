@@ -8,7 +8,7 @@ end
 
 def getUserById(id)
   db = connectToDb()
-  user = db.execute("SELECT id, username FROM users WHERE id=?", [user_id])
+  user = db.execute("SELECT * FROM users WHERE id=?", [user_id])
 
   return user.first
 end
@@ -36,7 +36,7 @@ end
 
 def getThreadById(id)
   db = connectToDb()
-  threads = db.execute("SELECT * FROM thread WHERE id = ?", [id])
+  threads = db.execute("SELECT thread.id, user.username, thread.category_id, thread.title, thread.content, thread.owner_id, thread.created FROM thread LEFT JOIN user ON thread.owner_id = user.id WHERE thread.id = ?", [id])
 
   return threads.first
 end
@@ -50,7 +50,8 @@ end
 
 def getThreadReplies(threadId)
   db = connectToDb()
-  replies = db.execute("SELECT * FROM reply WHERE thread_id = ? ORDER BY created, id ASC", [threadId])
+  replies = db.execute("SELECT reply.id, reply.thread_id, reply.content, reply.owner_id, reply.created, user.username FROM reply LEFT JOIN user ON reply.owner_id = user.id WHERE reply.thread_id = ? ORDER BY reply.created, reply.id ASC", [threadId])
+  p replies
 
   return replies
 end
@@ -135,9 +136,24 @@ def createCategory(name)
   return categories.first["id"]
 end
 
+def updateCategory(id, name)
+  db = connectToDb()
+  categories = db.execute("UPDATE category SET name = ? WHERE id = ?", [name, id])
+end
+
 def deleteUser(id)
   db = connectToDb()
   db.execute("DELETE FROM user WHERE id = ?", [id])
+end
+
+def updateUser(id, username) 
+  db = connectToDb()
+  db.execute("UPDATE user SET username = ? WHERE id = ?", [username, id])
+end
+
+def updateUserPass(id, new_pass_dig)
+  db = connectToDb()
+  db.execute("UPDATE user SET pass_dig = ? WHERE id = ?", [new_pass_dig, id])
 end
 
 def banUser(id, status) 

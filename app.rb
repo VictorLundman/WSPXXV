@@ -67,6 +67,41 @@ get "/categories/:id" do
   slim(:"categories/view")
 end
 
+get "/categories/:id/update" do
+  if @user == nil or @user["role"] < 2
+    error(401)
+  end
+
+  id = params[:id].to_i
+  @category = getCategoryById(id)
+  if @category == nil
+    error(404)
+  end
+
+  slim(:"categories/update")
+end
+
+post "/categories/:id/update" do
+  if @user == nil or @user["role"] < 2
+    error(401)
+  end
+
+  id = params[:id].to_i
+  @category = getCategoryById(id)
+  if @category == nil
+    error(404)
+  end
+
+  title = params[:title]
+  if !validate_category_title(title)
+    return error(400)
+  end
+
+  updateCategory(id, title)
+
+  redirect("/categories/#{id}")
+end
+
 get "/categories/:id/new" do
   id = params[:id].to_i
 
@@ -388,4 +423,57 @@ post "/threads/:thread_id/replies/:reply_id/delete" do
   deleteReply(reply_id)
 
   redirect("/threads/#{thread["id"]}")
+end
+
+get "/account" do
+  if @user == nil
+    redirect("/auth/login")
+  end
+
+  slim(:"account/view")
+end
+
+post "/account" do
+  if @user == nil
+    redirect("/auth/login")
+  end
+
+  username = params[:username]
+  if !validate_username(username)
+    error(400)
+  end
+
+  existing_user = getUserByUsername(username)
+  if existing_user
+    error(400)
+  end
+
+  updateUser(@user["id"], username)
+
+  redirect("/account")
+end
+
+post "/account/updatePassword" do
+  if @user == nil
+    redirect("/auth/login")
+  end
+
+  existing_pass = params[:existing_pass]
+  new_pass = params[:new_pass]
+  new_pass_confirm = params[:new_pass_confirm]
+  if new_pass != new_pass_confirm
+    p "Pass not matching"
+    error(400)
+  elsif !validate_password(new_pass)
+    p "invalid pass"
+    error(400)
+  end
+
+  if BCrypt::Password.new(@user["pass_dig"]) == existing_pass
+    updateUserPass(@user["id"], BCrypt::Password.create(new_pass))
+
+    redirect("/account")
+  else
+    error(400)
+  end
 end
