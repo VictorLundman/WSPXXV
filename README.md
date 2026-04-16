@@ -1,5 +1,7 @@
 # WSPXXV
 
+**Generera dokumentationen med `bundle exec yardoc --plugin yard-sinatra app.rb models.rb .\validation.rb`**
+
 #### Webbserverprogrammering vt26
 
 ### Uppgiftsbeskrivning

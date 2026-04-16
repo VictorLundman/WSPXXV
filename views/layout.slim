@@ -10,4 +10,7 @@ header
         a href="/auth/login" Logga in
         a href="/auth/signup" Skapa konto
 
+- flash.keys.each do |type|
+    p style="color: red;" #{flash[type]}
+
 ==yield
